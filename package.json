@@ -1,6 +1,7 @@
 {
   "name": "clause-guard",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "AI-powered contract review assistant that flags risky clauses, missing signatures, and renewal deadlines",
   "private": true,
   "type": "module",
   "engines": {

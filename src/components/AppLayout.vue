@@ -4,7 +4,7 @@
       <div class="nav-container">
         <div class="nav-brand">
           <router-link to="/" class="brand-link">
-            <span class="brand-icon">🛡️</span>
+            <img src="/logo.svg" alt="ClauseGuard" class="brand-logo" />
             <span class="brand-text">ClauseGuard</span>
           </router-link>
         </div>
@@ -44,7 +44,7 @@
       <div class="footer-container">
         <div class="footer-content">
           <div class="footer-brand">
-            <span class="brand-icon">🛡️</span>
+            <img src="/logo.svg" alt="ClauseGuard" class="brand-logo" />
             <span class="brand-text">ClauseGuard</span>
           </div>
           <p class="footer-description">
@@ -115,8 +115,10 @@ const closeMobileMenu = () => {
   transform: translateY(-2px);
 }
 
-.brand-icon {
-  font-size: 1.8rem;
+.brand-logo {
+  height: 40px;
+  width: auto;
+  margin-right: 0.75rem;
 }
 
 .brand-text {
@@ -231,6 +233,12 @@ const closeMobileMenu = () => {
   gap: 0.5rem;
   margin-bottom: 1rem;
   justify-content: center;
+}
+
+.footer-brand .brand-logo {
+  height: 36px;
+  width: auto;
+  margin-right: 0.75rem;
 }
 
 .footer-brand .brand-text {

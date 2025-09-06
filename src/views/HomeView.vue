@@ -93,7 +93,9 @@
             <p>Get comprehensive contract analysis in seconds, not hours or days</p>
           </div>
           <div class="feature-card animate-fade-in-up" style="animation-delay: 0.3s">
-            <div class="feature-icon">🛡️</div>
+            <div class="feature-icon">
+              <img src="/logo.svg" alt="ClauseGuard" class="feature-logo" />
+            </div>
             <h3>Risk Protection</h3>
             <p>
               Identify missing signatures, renewal deadlines, and risky clauses before they become
@@ -395,6 +397,12 @@
 
 .feature-icon {
   font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.feature-logo {
+  width: 48px;
+  height: 48px;
   margin-bottom: 1.5rem;
 }
 

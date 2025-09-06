@@ -40,7 +40,9 @@
               <p>Get results in seconds, not hours</p>
             </div>
             <div class="visual-card">
-              <div class="card-icon">🛡️</div>
+              <div class="card-icon">
+                <img src="/logo.svg" alt="ClauseGuard" class="card-logo" />
+              </div>
               <h3>Protection</h3>
               <p>Comprehensive risk identification</p>
             </div>
@@ -378,6 +380,12 @@ export default {
 
 .card-icon {
   font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.card-logo {
+  width: 48px;
+  height: 48px;
   margin-bottom: 1rem;
 }
 
