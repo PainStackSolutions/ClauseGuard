@@ -239,7 +239,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 
 const fileInput = ref(null)
 const uploadedFile = ref(null)
