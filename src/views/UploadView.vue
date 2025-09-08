@@ -3,7 +3,7 @@
     <div class="upload-container">
       <div class="upload-header animate-fade-in-up">
         <h1>Upload Your Contract</h1>
-        <p>Upload a PDF, DOCX, or image file to get instant AI-powered contract analysis</p>
+        <p>Upload a PDF or DOCX file to get instant AI-powered contract analysis</p>
       </div>
 
       <div class="upload-section">
@@ -18,7 +18,7 @@
           <input
             ref="fileInput"
             type="file"
-            accept=".pdf,.docx,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.webp"
+            accept=".pdf,.docx"
             @change="handleFileSelect"
             style="display: none"
           />
@@ -39,7 +39,6 @@
             <div class="upload-formats">
               <span class="format-tag">PDF</span>
               <span class="format-tag">DOCX</span>
-              <span class="format-tag">Images</span>
             </div>
           </div>
 
@@ -86,7 +85,7 @@
           </div>
         </div>
 
-        <div v-if="uploadedFile && !isProcessing && !analysisResult" class="upload-actions">
+        <div v-if="uploadedFile && !isProcessing && !analysisResult && !error" class="upload-actions">
           <button
             @click="analyzeContract"
             class="btn btn-primary btn-large"
@@ -102,6 +101,16 @@
               />
             </svg>
           </button>
+        </div>
+
+        <!-- Error Display -->
+        <div v-if="error" class="error-section">
+          <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h3>Analysis Failed</h3>
+            <p>{{ error }}</p>
+            <button @click="reset" class="btn btn-primary">Try Again</button>
+          </div>
         </div>
 
         <!-- Loading Animation -->
@@ -225,7 +234,7 @@
           </div>
 
           <div class="results-actions">
-            <button @click="downloadReport" class="btn btn-secondary">
+            <button @click="handleDownloadReport" class="btn btn-secondary">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path
                   stroke-linecap="round"
@@ -255,21 +264,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useContractAnalysis } from '../composables/useContractAnalysis.js'
 
 const fileInput = ref(null)
-const uploadedFile = ref(null)
 const isDragOver = ref(false)
-const isProcessing = ref(false)
-const currentStep = ref(0)
-const analysisResult = ref(null)
 const activeTab = ref('risky')
+
+// Use the contract analysis composable
+const {
+  uploadedFile,
+  isProcessing,
+  currentStep,
+  analysisResult,
+  error,
+  isUploaded,
+  isCompleted,
+  hasError,
+  progress,
+  setUploadedFile,
+  removeFile,
+  startAnalysis,
+  downloadReport,
+  reset
+} = useContractAnalysis()
 
 const tabs = [
   { key: 'risky', label: 'Risky Clauses' },
   { key: 'signatures', label: 'Missing Signatures' },
   { key: 'deadlines', label: 'Renewal Deadlines' },
 ]
+
+// Check backend health on mount
+onMounted(async () => {
+  try {
+    const { apiService } = await import('../services/api.js')
+    const isHealthy = await apiService.checkHealth()
+    if (!isHealthy) {
+      console.warn('Backend is not responding. Using demo mode.')
+    }
+  } catch (err) {
+    console.warn('Could not check backend health:', err)
+  }
+})
 
 const handleDragOver = (e) => {
   e.preventDefault()
@@ -307,28 +344,16 @@ const handleFile = (file) => {
   const allowedTypes = [
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/gif',
-    'image/bmp',
-    'image/tiff',
-    'image/webp',
   ]
   if (!allowedTypes.includes(file.type)) {
-    alert('Please upload a PDF, DOCX, or image file (JPG, PNG, GIF, BMP, TIFF, WebP)')
+    alert('Please upload a PDF or DOCX file')
     return
   }
 
-  uploadedFile.value = file
+  setUploadedFile(file)
 }
 
-const removeFile = () => {
-  uploadedFile.value = null
-  analysisResult.value = null
-  isProcessing.value = false
-  currentStep.value = 0
-}
+// removeFile is now provided by the composable
 
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes'
@@ -343,63 +368,12 @@ const isImageFile = (file) => {
 }
 
 const analyzeContract = async () => {
-  isProcessing.value = true
-  currentStep.value = 0
-
-  // Simulate processing steps
-  const steps = [1, 2, 3, 4]
-  for (let i = 0; i < steps.length; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    currentStep.value = steps[i]
+  try {
+    await startAnalysis()
+  } catch (err) {
+    console.error('Analysis failed:', err)
+    // Error is handled by the composable
   }
-
-  // Simulate final processing
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  // Generate dummy analysis result
-  analysisResult.value = {
-    riskyClauses: [
-      {
-        type: 'Auto-renewal clause',
-        riskLevel: 'high',
-        text: 'This agreement shall automatically renew for successive one-year terms unless either party provides written notice of termination at least 30 days prior to the expiration of the then-current term.',
-        recommendation:
-          'Consider adding a clear termination process and ensure both parties understand the renewal terms.',
-      },
-      {
-        type: 'Liability limitation',
-        riskLevel: 'medium',
-        text: 'In no event shall either party be liable for any indirect, incidental, special, or consequential damages.',
-        recommendation:
-          'Review liability limitations to ensure they align with your risk tolerance and business needs.',
-      },
-    ],
-    missingSignatures: [
-      {
-        party: 'John Smith (Client)',
-        location: 'Page 3, Section 2.1',
-      },
-      {
-        party: 'Jane Doe (Witness)',
-        location: 'Page 4, Signature block',
-      },
-    ],
-    renewalDeadlines: [
-      {
-        type: 'Contract Renewal',
-        date: '2024-12-31',
-        description:
-          'Contract expires on December 31, 2024. 30-day notice required for non-renewal.',
-      },
-      {
-        type: 'Payment Terms Review',
-        date: '2024-06-30',
-        description: 'Payment terms subject to review and potential adjustment on June 30, 2024.',
-      },
-    ],
-  }
-
-  isProcessing.value = false
 }
 
 const getTabCount = (tabKey) => {
@@ -412,23 +386,13 @@ const getTabCount = (tabKey) => {
   )
 }
 
-const downloadReport = () => {
-  // Create structured PDF content
-  const pdfContent = generatePDFContent(analysisResult.value)
-
-  // Create a blob with the PDF content
-  const blob = new Blob([pdfContent], { type: 'application/pdf' })
-  const url = URL.createObjectURL(blob)
-
-  const exportFileDefaultName = `clauseguard-analysis-${new Date().toISOString().split('T')[0]}.pdf`
-
-  const linkElement = document.createElement('a')
-  linkElement.setAttribute('href', url)
-  linkElement.setAttribute('download', exportFileDefaultName)
-  linkElement.click()
-
-  // Clean up the URL object
-  URL.revokeObjectURL(url)
+const handleDownloadReport = async () => {
+  try {
+    await downloadReport()
+  } catch (err) {
+    console.error('Download failed:', err)
+    // Error is handled by the composable
+  }
 }
 
 const generatePDFContent = (data) => {
@@ -585,7 +549,7 @@ ET`
 }
 
 const uploadNew = () => {
-  removeFile()
+  reset()
   fileInput.value.value = ''
 }
 </script>
@@ -805,6 +769,39 @@ const uploadNew = () => {
 .btn-icon {
   width: 20px;
   height: 20px;
+}
+
+.error-section {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid #fef2f2;
+}
+
+.error-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #dc2626;
+}
+
+.error-content p {
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
 }
 
 .processing-section {
