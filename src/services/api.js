@@ -2,7 +2,7 @@
  * API service for communicating with ClauseGuard backend
  */
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = 'https://clauseguard-backend-r3m9.onrender.com'
 
 class ApiService {
   constructor() {
