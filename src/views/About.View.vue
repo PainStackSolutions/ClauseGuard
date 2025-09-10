@@ -2,14 +2,14 @@
   <div class="about-page">
     <div class="about-container">
       <!-- Hero Section -->
-      <section class="about-hero">
-        <div class="hero-content animate-fade-in-up">
+      <section class="about-hero" role="banner">
+        <header class="hero-content animate-fade-in-up">
           <h1>About ClauseGuard</h1>
           <p class="hero-subtitle">
             Revolutionizing contract review with AI-powered analysis that saves time, reduces risks,
             and ensures nothing important gets overlooked.
           </p>
-        </div>
+        </header>
       </section>
 
       <!-- Mission Section -->
@@ -274,7 +274,10 @@
 </template>
 
 <script setup>
-// No additional logic needed for this component
+import { useSEO, seoPages } from '../composables/useSEO.js'
+
+// Apply SEO for about page
+useSEO(seoPages.about)
 </script>
 
 <script>

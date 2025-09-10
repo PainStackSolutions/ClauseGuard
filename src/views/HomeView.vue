@@ -1,10 +1,10 @@
 <template>
   <div class="home">
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" role="banner">
       <div class="hero-container">
         <div class="hero-content">
-          <div class="hero-text animate-fade-in-up">
+          <header class="hero-text animate-fade-in-up">
             <h1 class="hero-title">
               AI-Powered Contract Review
               <span class="gradient-text">Made Simple</span>
@@ -14,7 +14,11 @@
               signatures, and renewal deadlines. Save time and reduce legal risks.
             </p>
             <div class="hero-actions">
-              <router-link to="/upload" class="btn btn-primary">
+              <router-link
+                to="/upload"
+                class="btn btn-primary"
+                @click="trackButtonClick('Start Reviewing', 'Homepage Hero')"
+              >
                 <span>Start Reviewing</span>
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path
@@ -25,10 +29,19 @@
                   />
                 </svg>
               </router-link>
-              <router-link to="/about" class="btn btn-secondary"> Learn More </router-link>
+              <router-link
+                to="/about"
+                class="btn btn-secondary"
+                @click="trackButtonClick('Learn More', 'Homepage Hero')"
+              >
+                Learn More
+              </router-link>
             </div>
-          </div>
-          <div class="hero-visual animate-slide-in-right">
+          </header>
+          <aside
+            class="hero-visual animate-slide-in-right"
+            aria-label="Contract preview demonstration"
+          >
             <div class="contract-preview">
               <div class="contract-header">
                 <div class="contract-dots">
@@ -64,49 +77,53 @@
                 </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features">
+    <section class="features" role="main">
       <div class="features-container">
-        <div class="features-header animate-fade-in-up">
+        <header class="features-header animate-fade-in-up">
           <h2>Why Choose ClauseGuard?</h2>
           <p>
             Powerful AI technology that understands legal language and identifies potential risks
           </p>
-        </div>
+        </header>
         <div class="features-grid">
-          <div class="feature-card animate-fade-in-up" style="animation-delay: 0.1s">
-            <div class="feature-icon">🔍</div>
+          <article class="feature-card animate-fade-in-up" style="animation-delay: 0.1s">
+            <div class="feature-icon" role="img" aria-label="Smart analysis icon">🔍</div>
             <h3>Smart Analysis</h3>
             <p>
               Advanced AI algorithms analyze contract language to identify potential risks and
               issues
             </p>
-          </div>
-          <div class="feature-card animate-fade-in-up" style="animation-delay: 0.2s">
-            <div class="feature-icon">⚡</div>
+          </article>
+          <article class="feature-card animate-fade-in-up" style="animation-delay: 0.2s">
+            <div class="feature-icon" role="img" aria-label="Lightning fast results icon">⚡</div>
             <h3>Instant Results</h3>
             <p>Get comprehensive contract analysis in seconds, not hours or days</p>
-          </div>
-          <div class="feature-card animate-fade-in-up" style="animation-delay: 0.3s">
+          </article>
+          <article class="feature-card animate-fade-in-up" style="animation-delay: 0.3s">
             <div class="feature-icon">
-              <img src="/logo.svg" alt="ClauseGuard" class="feature-logo" />
+              <img
+                src="/logo.svg"
+                alt="ClauseGuard logo representing risk protection"
+                class="feature-logo"
+              />
             </div>
             <h3>Risk Protection</h3>
             <p>
               Identify missing signatures, renewal deadlines, and risky clauses before they become
               problems
             </p>
-          </div>
-          <div class="feature-card animate-fade-in-up" style="animation-delay: 0.4s">
-            <div class="feature-icon">📊</div>
+          </article>
+          <article class="feature-card animate-fade-in-up" style="animation-delay: 0.4s">
+            <div class="feature-icon" role="img" aria-label="Detailed reports icon">📊</div>
             <h3>Detailed Reports</h3>
             <p>Receive structured PDF reports with actionable insights and recommendations</p>
-          </div>
+          </article>
         </div>
       </div>
     </section>
@@ -119,7 +136,11 @@
           <p>
             Join thousands of professionals who trust ClauseGuard for their contract analysis needs
           </p>
-          <router-link to="/upload" class="btn btn-primary btn-large">
+          <router-link
+            to="/upload"
+            class="btn btn-primary btn-large"
+            @click="trackButtonClick('Upload Your First Contract', 'Homepage CTA')"
+          >
             <span>Upload Your First Contract</span>
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path
@@ -137,7 +158,20 @@
 </template>
 
 <script setup>
-// No additional logic needed for this component
+import { useSEO, seoPages } from '../composables/useSEO.js'
+import { useGoogleAnalytics } from '../composables/useGoogleAnalytics.js'
+
+// Apply SEO for home page
+useSEO(seoPages.home)
+
+// Initialize Google Analytics
+const { trackButtonClick, trackFeatureView } = useGoogleAnalytics()
+
+// Track feature views when component mounts
+import { onMounted } from 'vue'
+onMounted(() => {
+  trackFeatureView('Homepage Hero')
+})
 </script>
 
 <style scoped>
@@ -190,10 +224,22 @@
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-weight: 700;
+  animation: subtleGlow 4s ease-in-out infinite;
+}
+
+@keyframes subtleGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.15);
+  }
 }
 
 .hero-subtitle {

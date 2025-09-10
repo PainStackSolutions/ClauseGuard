@@ -85,7 +85,10 @@
           </div>
         </div>
 
-        <div v-if="uploadedFile && !isProcessing && !analysisResult && !error" class="upload-actions">
+        <div
+          v-if="uploadedFile && !isProcessing && !analysisResult && !error"
+          class="upload-actions"
+        >
           <button
             @click="analyzeContract"
             class="btn btn-primary btn-large"
@@ -266,6 +269,20 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useContractAnalysis } from '../composables/useContractAnalysis.js'
+import { useSEO, seoPages } from '../composables/useSEO.js'
+import { useGoogleAnalytics } from '../composables/useGoogleAnalytics.js'
+
+// Apply SEO for upload page
+useSEO(seoPages.upload)
+
+// Initialize Google Analytics
+const {
+  trackContractUpload,
+  trackContractAnalysis,
+  trackReportDownload,
+  trackButtonClick,
+  trackError,
+} = useGoogleAnalytics()
 
 const fileInput = ref(null)
 const isDragOver = ref(false)
@@ -286,7 +303,7 @@ const {
   removeFile,
   startAnalysis,
   downloadReport,
-  reset
+  reset,
 } = useContractAnalysis()
 
 const tabs = [
@@ -369,9 +386,20 @@ const isImageFile = (file) => {
 
 const analyzeContract = async () => {
   try {
+    trackButtonClick('Analyze Contract', 'Upload Page')
+    const startTime = Date.now()
+
     await startAnalysis()
+
+    // Track successful analysis
+    const analysisTime = Date.now() - startTime
+    if (analysisResult.value) {
+      const riskLevel = analysisResult.value.riskyClauses?.length > 0 ? 'high' : 'low'
+      trackContractAnalysis(analysisTime, riskLevel)
+    }
   } catch (err) {
     console.error('Analysis failed:', err)
+    trackError('contract_analysis', err.message)
     // Error is handled by the composable
   }
 }
@@ -388,9 +416,11 @@ const getTabCount = (tabKey) => {
 
 const handleDownloadReport = async () => {
   try {
+    trackReportDownload('PDF Report')
     await downloadReport()
   } catch (err) {
     console.error('Download failed:', err)
+    trackError('report_download', err.message)
     // Error is handled by the composable
   }
 }
