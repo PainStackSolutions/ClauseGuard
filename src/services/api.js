@@ -18,17 +18,31 @@ class ApiService {
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await fetch(`${this.baseURL}/analyze`, {
-      method: 'POST',
-      body: formData,
-    })
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 90000) // 90 seconds timeout
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`)
+    try {
+      const response = await fetch(`${this.baseURL}/analyze`, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return response.json()
+    } catch (error) {
+      clearTimeout(timeoutId)
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out after 90 seconds. Please try with a smaller file or contact support.')
+      }
+      throw error
     }
-
-    return response.json()
   }
 
   /**
